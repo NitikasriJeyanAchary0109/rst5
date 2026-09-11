@@ -14,13 +14,6 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin onerror="this.onerror=null;this.src='vendor/react.production.min.js'"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin onerror="this.onerror=null;this.src='vendor/react-dom.production.min.js'"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="this.onerror=null;this.src='vendor/babel.min.js'"></script>
-<script>
-  if (!window.React) {
-    document.write('<script src="vendor/react.production.min.js"><\/script>');
-    document.write('<script src="vendor/react-dom.production.min.js"><\/script>');
-    document.write('<script src="vendor/babel.min.js"><\/script>');
-  }
-</script>
 
 <style>
   :root {
@@ -29,7 +22,6 @@
     --text-secondary: #909090;
     --text-muted: #555555;
     --divider: rgba(255, 255, 255, 0.08);
-    --divider-light: rgba(255, 255, 255, 0.14);
     --font-serif: 'Fraunces', Georgia, serif;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'SF Mono', Menlo, Consolas, monospace;
@@ -48,12 +40,20 @@
     line-height: 1.6;
     padding: 3rem 1.5rem;
     min-height: 100vh;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
   }
 
   .container {
     max-width: 820px;
     margin: 0 auto;
+    position: relative;
   }
 
   /* Top Navigation & System Status Strip */
@@ -208,7 +208,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.6rem 0.8rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.025);
     border: 1px solid var(--divider);
   }
 
@@ -241,14 +241,65 @@
     font-weight: 400;
   }
 
-  /* Load Status — 3-Column Large Numbers */
-  .status-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2rem;
+  /* CSV Preview Table (Directly under Upload) */
+  .preview-section-wrap {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--divider);
   }
 
+  .preview-heading {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  th, td {
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--divider);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  th {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+    background: transparent;
+  }
+
+  td {
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+  }
+
+  tr:hover td {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  /* Load Status — 3-Column Large Numbers */
   .status-text-badge {
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -298,9 +349,9 @@
     font-weight: 500;
   }
 
-  /* Minimal Hairline Progress Bar */
+  /* Single, Functional Progress Bar */
   .progress-wrap {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
   }
 
   .progress-bar-bg {
@@ -314,7 +365,7 @@
   .progress-bar-fill {
     height: 100%;
     background: #fff;
-    transition: width 0.35s ease;
+    transition: width 0.35s ease, background-color 0.35s ease;
   }
 
   .progress-label {
@@ -322,48 +373,8 @@
     justify-content: space-between;
     font-size: 0.72rem;
     color: var(--text-muted);
-    letter-spacing: 0.05em;
-    margin-top: 0.4rem;
-  }
-
-  /* Preview Table */
-  .table-wrap {
-    margin-top: 2rem;
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-
-  th, td {
-    padding: 0.6rem 0.8rem;
-    text-align: left;
-    border-bottom: 1px solid var(--divider);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 220px;
-  }
-
-  th {
-    color: var(--text-muted);
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 500;
-    background: transparent;
-  }
-
-  td {
-    color: var(--text-secondary);
-    font-family: var(--font-sans);
-  }
-
-  tr:hover td {
-    color: #fff;
+    letter-spacing: 0.06em;
+    margin-top: 0.45rem;
   }
 
   /* Chat & Questions */
@@ -439,26 +450,18 @@
     cursor: not-allowed;
   }
 
-  /* Chat History List */
+  /* Chat Stream (Last 5 Q&A Pairs with graceful opacity fade) */
   .chat-stream {
-    margin-top: 2rem;
+    margin-top: 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2.25rem;
   }
 
   .chat-entry {
     padding-bottom: 2rem;
     border-bottom: 1px solid var(--divider);
-    transition: opacity 0.2s ease;
-  }
-
-  .chat-entry.recent {
-    opacity: 1;
-  }
-
-  .chat-entry.older {
-    opacity: 0.65;
+    transition: opacity 0.25s ease;
   }
 
   .chat-entry-header {
@@ -469,7 +472,7 @@
   }
 
   .chat-q-text {
-    font-size: 0.86rem;
+    font-size: 0.88rem;
     color: var(--text-secondary);
     font-style: italic;
   }
@@ -560,33 +563,62 @@
   const { useState, useEffect, useRef } = React;
   const API_BASE = "http://localhost:8000";
 
+  // Robust CSV parser supporting quotes, commas, and CRLF
+  function parseCSVText(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length === 0) return { headers: [], rows: [], total: 0 };
+
+    const splitLine = (line) => {
+      const res = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          res.push(cur.trim().replace(/^["']|["']$/g, ""));
+          cur = "";
+        } else {
+          cur += char;
+        }
+      }
+      res.push(cur.trim().replace(/^["']|["']$/g, ""));
+      return res;
+    };
+
+    const headers = splitLine(lines[0]);
+    const rows = lines.slice(1, 11).map(splitLine);
+    return { headers, rows, total: lines.length - 1 };
+  }
+
   function App() {
     // 1. System Health state (API, Kafka, Neo4j)
     const [health, setHealth] = useState({ api: false, kafka: false, neo4j: false });
 
-    // 2. Upload state
+    // 2. Upload state & CSV preview
     const [fileName, setFileName] = useState("");
     const [uploadTimestamp, setUploadTimestamp] = useState("");
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadError, setUploadError] = useState("");
     const [jobMeta, setJobMeta] = useState(null); // { job_id, rows_received, status }
+    const [previewHeaders, setPreviewHeaders] = useState([]);
+    const [previewRows, setPreviewRows] = useState([]);
+    const [previewTotalRows, setPreviewTotalRows] = useState(0);
     const fileInputRef = useRef(null);
 
-    // 3. Preview & Status state
-    const [previewRows, setPreviewRows] = useState([]);
-    const [previewHeaders, setPreviewHeaders] = useState([]);
-    const [previewTotalRows, setPreviewTotalRows] = useState(0);
+    // 3. Load Status state
     const [statusData, setStatusData] = useState(null);
     const [statusError, setStatusError] = useState("");
     const [isPolling, setIsPolling] = useState(false);
 
-    // 4. Chat state (keeps running list of last 5 Q&A pairs)
+    // 4. Chat state (Last 5 Q&A pairs)
     const [question, setQuestion] = useState("");
     const [isAsking, setIsAsking] = useState(false);
     const [chatError, setChatError] = useState("");
     const [chatHistory, setChatHistory] = useState([]);
 
-    // System Status Strip: poll /health on page load and every 10s (completely separate from job status)
+    // System Status Strip: poll /health on page load and every 10s
     useEffect(() => {
       const checkHealth = async () => {
         try {
@@ -611,31 +643,22 @@
       return () => clearInterval(healthTimer);
     }, []);
 
-    // File selection & upload logic (identical endpoints and multipart contract)
+    // File selection & upload logic
     const handleFile = async (file) => {
       if (!file) return;
       setUploadError("");
       setFileName(file.name);
 
-      // Record human-readable timestamp e.g. "2:14 PM"
       const nowStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       setUploadTimestamp(nowStr);
 
-      // Client-side preview parse (first 10 rows)
+      // Client-side CSV preview parse (first 10 rows)
       try {
         const text = await file.text();
-        const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-        if (lines.length > 0) {
-          const header = lines[0].split(",");
-          const rows = lines.slice(1, 11).map(l => l.split(","));
-          setPreviewHeaders(header);
-          setPreviewRows(rows);
-          setPreviewTotalRows(lines.length - 1);
-        } else {
-          setPreviewHeaders([]);
-          setPreviewRows([]);
-          setPreviewTotalRows(0);
-        }
+        const parsed = parseCSVText(text);
+        setPreviewHeaders(parsed.headers);
+        setPreviewRows(parsed.rows);
+        setPreviewTotalRows(parsed.total);
       } catch (err) {
         console.error("Preview parse failed:", err);
       }
@@ -668,7 +691,7 @@
       }
     };
 
-    // Status polling effect: polls /status?job_id=... every 1.5s until complete or failed
+    // Status polling: /status?job_id=... every 1.5s
     useEffect(() => {
       if (!isPolling || !jobMeta?.job_id) return;
 
@@ -698,7 +721,7 @@
       return () => clearInterval(timer);
     }, [isPolling, jobMeta?.job_id]);
 
-    // Chat submit logic with last 5 Q&A running history
+    // Chat submit logic (stores last 5 Q&A pairs)
     const handleAsk = async (qText) => {
       const q = (qText !== undefined ? qText : question).trim();
       if (!q || isAsking) return;
@@ -726,7 +749,7 @@
           grounded: !!data.grounded,
           time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
         };
-        // Prepend new entry, keeping up to 5 entries
+        // Keep last 5 Q&A entries, newest first
         setChatHistory(prev => [entry, ...prev].slice(0, 5));
         setQuestion("");
       } catch (err) {
@@ -755,7 +778,7 @@
       if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    // Live progress percentage calculation
+    // Progress percentage
     const progressPct = statusData && statusData.rows_total > 0
       ? Math.min(100, Math.round(((statusData.rows_loaded || 0) / statusData.rows_total) * 100))
       : 0;
@@ -786,7 +809,7 @@
           </p>
         </header>
 
-        {/* Section 1: Upload CSV */}
+        {/* Section 1: Upload CSV & Row Preview */}
         <section className="section-row">
           <div className="section-header">
             <span className="section-label">Upload CSV</span>
@@ -824,7 +847,6 @@
             <div className="dropzone-sub">
               {fileName ? "Click or drag another to replace" : "Drop CSV file here, or click to browse"}
             </div>
-            <div id="filename" style={{ display: "none" }}>{fileName}</div>
           </div>
 
           {fileName && (
@@ -843,9 +865,41 @@
               <div className="meta-item">STATUS <strong id="metaStatus">{jobMeta.status ?? "—"}</strong></div>
             </div>
           )}
+
+          {/* Fix 1: CSV Row Preview Table immediately under Upload Dropzone */}
+          {previewHeaders.length > 0 && (
+            <div className="preview-section-wrap" id="previewTableWrap">
+              <div className="preview-heading">
+                <span>CSV Row Preview</span>
+                <span>First 10 of {previewTotalRows} rows</span>
+              </div>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "40px" }}>#</th>
+                      {previewHeaders.map((h, i) => (
+                        <th key={i}>{h.trim()}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewRows.map((r, rIdx) => (
+                      <tr key={rIdx}>
+                        <td style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>{rIdx + 1}</td>
+                        {r.map((cell, cIdx) => (
+                          <td key={cIdx}>{(cell || "").trim()}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </section>
 
-        {/* Section 2: Load Status & Data Figures */}
+        {/* Section 2: Load Status & Figures */}
         <section className="section-row">
           <div className="section-header">
             <span className="section-label">Load Status</span>
@@ -863,7 +917,7 @@
             </div>
           </div>
 
-          {/* 3-Column Large Serif Figures */}
+          {/* Fix 3: 3-Column Figures always show "—" in empty state instead of blank */}
           <div className="figures-grid">
             <div className="figure-col">
               <div className="figure-number">
@@ -872,7 +926,7 @@
               <div className="figure-label">Total Rows</div>
             </div>
             <div className="figure-col">
-              <div className="figure-number loaded">
+              <div className={`figure-number ${statusData && statusData.rows_loaded > 0 ? "loaded" : ""}`}>
                 {statusData ? (statusData.rows_loaded ?? 0) : "—"}
               </div>
               <div className="figure-label">Loaded to Graph</div>
@@ -885,51 +939,26 @@
             </div>
           </div>
 
-          {/* Minimal Progress Bar */}
-          {statusData && (
+          {/* Fix 5: Single, Functional Progress Bar filling as rows_loaded climbs */}
+          {statusData && statusData.rows_total > 0 && (
             <div className="progress-wrap">
               <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${progressPct}%` }}></div>
+                <div
+                  className="progress-bar-fill"
+                  style={{
+                    width: `${progressPct}%`,
+                    backgroundColor: statusData.status === "complete" ? "var(--status-green)" : "#fff"
+                  }}
+                />
               </div>
               <div className="progress-label">
                 <span>INGESTION COMPLETION</span>
-                <span>{progressPct}% ({statusData.rows_loaded ?? 0} / {statusData.rows_total ?? 0})</span>
+                <span>{progressPct}% ({statusData.rows_loaded ?? 0} / {statusData.rows_total ?? 0} rows)</span>
               </div>
             </div>
           )}
 
           {statusError && <div className="error-box">{statusError}</div>}
-
-          {/* CSV Preview Table */}
-          <div className="table-wrap" id="previewTableWrap">
-            {previewHeaders.length > 0 && (
-              <>
-                <table>
-                  <thead>
-                    <tr>
-                      {previewHeaders.map((h, i) => (
-                        <th key={i}>{h.trim()}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewRows.map((r, rIdx) => (
-                      <tr key={rIdx}>
-                        {r.map((cell, cIdx) => (
-                          <td key={cIdx}>{(cell || "").trim()}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {previewTotalRows > 10 && (
-                  <div className="empty-state" style={{ marginTop: "0.75rem" }}>
-                    Showing first 10 of {previewTotalRows} rows (preview only — server parses full dataset).
-                  </div>
-                )}
-              </>
-            )}
-          </div>
         </section>
 
         {/* Section 3: Ask Your Data */}
@@ -985,40 +1014,53 @@
 
           {chatError && <div id="chatError" className="error-box">{chatError}</div>}
 
-          {/* Chat Stream (Last 5 Q&A Pairs) */}
+          {/* Fix 4: Chat History with last 5 Q&A pairs, newest at 1.0 opacity, older entries fading */}
           <div id="chatResult" className="chat-stream">
-            {chatHistory.map((item, index) => (
-              <div
-                key={item.id}
-                className={`chat-entry ${index === 0 ? "recent" : "older"}`}
-              >
-                <div className="chat-entry-header">
-                  <div className="chat-q-text">"{item.question}"</div>
-                  <span className={`grounded-label ${item.grounded ? "is-grounded" : "not-grounded"}`}>
-                    {item.grounded ? "Grounded" : "Not Grounded"}
-                  </span>
-                </div>
+            {chatHistory.map((item, index) => {
+              const opacities = [1.0, 0.65, 0.50, 0.40, 0.30];
+              const itemOpacity = opacities[index] ?? 0.30;
 
-                <div className="chat-answer-serif">
-                  {item.answer}
-                </div>
+              return (
+                <div
+                  key={item.id}
+                  className="chat-entry"
+                  style={{ opacity: itemOpacity }}
+                >
+                  <div className="chat-entry-header">
+                    <div className="chat-q-text">"{item.question}"</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{item.time}</span>
+                      <span className={`grounded-label ${item.grounded ? "is-grounded" : "not-grounded"}`}>
+                        {item.grounded ? "Grounded" : "Not Grounded"}
+                      </span>
+                    </div>
+                  </div>
 
-                <details>
-                  <summary>View Cypher query &amp; result</summary>
-                  <pre>{item.cypher}</pre>
-                  <pre>{JSON.stringify(item.result, null, 2)}</pre>
-                </details>
-              </div>
-            ))}
+                  <div className="chat-answer-serif">
+                    {item.answer}
+                  </div>
+
+                  <details>
+                    <summary>View Cypher query &amp; result</summary>
+                    <pre>{item.cypher}</pre>
+                    <pre>{JSON.stringify(item.result, null, 2)}</pre>
+                  </details>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
     );
   }
 
-  // Mount React Root
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(<App />);
+  // Mount React Root safely (Fix 2: single-mount guard preventing duplicate DOM nodes)
+  const rootElement = document.getElementById("root");
+  if (rootElement && !window.__APP_INITIALIZED__) {
+    window.__APP_INITIALIZED__ = true;
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  }
 </script>
 </body>
 </html>
